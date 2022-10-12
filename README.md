@@ -8,12 +8,12 @@ Note: Under development.
 ### Add a file to the clipboard using:
 
 ```
-clipboard add file.txt
+cb add file.txt
 ```
 
 ### View items on clipboard using:
 ```
-clipboard list
+cb list
 ```
 Output:
 ```
@@ -26,7 +26,7 @@ Clipboard:
 
 ### Use file in external command
 ```
-clipboard cp file_copy.txt
+cb cp file_copy.txt
 ```
 Equivalent to:
 ```
