@@ -7,9 +7,10 @@ use prettytable::{format, Table};
 
 use crate::error::{Result, Error};
 use crate::state::Config;
+use crate::parse::parser;
 
 pub mod error;
-pub mod parser;
+pub mod parse;
 pub mod state;
 
 pub fn run_ext(

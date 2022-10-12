@@ -8,8 +8,12 @@ description = "A simple cli clipboard to simplify file operations."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "cb"
+name = "clipboard"
 path = "src/main.rs"
+
+[[bin]]
+name = "sp"
+path = "src/bin/sp.rs"
 
 [dependencies]
 clap = { version = "4.0.12", features = ["cargo", "derive"] }

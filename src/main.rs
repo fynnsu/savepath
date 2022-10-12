@@ -1,8 +1,8 @@
 use clipboard::error::Result;
-use clipboard::parser::CMD;
+use clipboard::parse::parser::CMD;
 
 fn main() -> Result<()> {
-    let cmd = clipboard::parser::parse()?;
+    let cmd = clipboard::parse::parser::parse()?;
 
     // println!("{:#?}", cmd);
 
