@@ -80,16 +80,3 @@ pub fn parse() -> Result<CMD> {
         Some(_) => unreachable!("There are no other subcommands"),
     }
 }
-
-// pub fn main() {
-//     let mut matches = Command::new("Clipboard Add")
-//         .about("Explains in brief what the program does")
-//         .no_binary_name(true)
-//         .arg(
-//             Arg::new("files")
-//                 .action(ArgAction::Append)
-//                 .value_parser(value_parser!(PathBuf))
-//                 .help("Files to save to clipboard"),
-//         )
-//         .get_matches_from(vec!["--help"]);
-// }

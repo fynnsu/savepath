@@ -90,19 +90,6 @@ impl Config {
         Ok(config)
     }
 
-    // pub fn get_table(&self) -> Table {
-    //     let mut t = Table::new();
-    //     match self {
-    //         Entry::Single(s) => {
-    //             let _ = t.add_row(row![&s.filename]);
-    //         }
-    //         Entry::Set(set) => set.iter().enumerate().for_each(|(i, x)| {
-    //             let _ = t.add_row(row![format!(".{}", i), x.filename]);
-    //         }),
-    //     };
-    //     t.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
-    //     t
-    // }
 }
 
 impl fmt::Display for Entry {
