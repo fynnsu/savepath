@@ -1,12 +1,11 @@
 use std::env;
 use std::ffi::OsString;
 use std::path::PathBuf;
-use std::process::{Command};
 #[macro_use]
 extern crate prettytable;
 use prettytable::{format, Table};
 
-use crate::error::{Error, Result};
+use crate::error::{Result, Error};
 use crate::state::Config;
 
 pub mod error;
@@ -37,25 +36,13 @@ pub fn run_ext(
     } else {
         args.insert(0, From::from(id_path));
     }
-    let mut cmd = Command::new(cmd_name);
-    let cmd = cmd.args(args);
+    let mut cmd = cmd_name.clone();
+    cmd.push(" ");
+    cmd.push(args.join(&OsString::from(" ")));
 
-    println!("Running Command:\n{:?}\n", cmd);
+    println!("{}", cmd.to_str().ok_or(Error::BadString)?);
 
-    let output = cmd.output()?;
-
-    if !output.stdout.is_empty() {
-        println!("{}", String::from_utf8_lossy(&output.stdout));
-    }
-    if !output.stderr.is_empty() {
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-    }
-
-    if !output.status.success() {
-        Err(Error::ExtCmdFailed(output.status))
-    } else {
-        Ok(())
-    }
+    Ok(())
 }
 
 pub fn list() -> Result<()> {
