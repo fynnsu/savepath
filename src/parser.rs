@@ -1,7 +1,8 @@
 use sscanf::scanf;
-use std::{error::Error, path::PathBuf};
+use std::path::PathBuf;
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 
-use clap::{arg, command, value_parser, Arg, ArgAction, Command,};
+use crate::error::Result;
 
 #[derive(Clone, Debug)]
 pub enum Id {
@@ -31,7 +32,7 @@ pub enum CMD {
     ExtCmd { id: Id, cmd: Vec<String> },
 }
 
-pub fn parse() -> Result<CMD, Box<dyn Error>> {
+pub fn parse() -> Result<CMD> {
     let matches = command!()
         .subcommand_negates_reqs(true)
         .args_conflicts_with_subcommands(true)

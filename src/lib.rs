@@ -1,118 +1,122 @@
-use std::ffi::OsStr;
-use std::{env, fmt};
-use std::error::Error;
-use std::fs::File;
-use std::io::{self, Read, Write};
+use std::env;
 use std::path::PathBuf;
 use std::process::Command;
 #[macro_use]
 extern crate prettytable;
-use parser::Id;
 use prettytable::{format, Table};
-use state::Entry;
 
+use crate::error::{Error, Result};
+use crate::parser::Id;
+use crate::state::{Config, Entry};
+
+pub mod error;
 pub mod parser;
-mod state;
+pub mod state;
 
-#[derive(Debug)]
-pub enum GetStateError {
-    IOError(io::Error),
-    JSONError(serde_json::Error),
-    InvalidState,
-    InvalidInput,
-}
+// #[derive(Debug)]
+// pub enum GetStateError {
+//     IOError(io::Error),
+//     JSONError(serde_json::Error),
+//     InvalidState,
+//     InvalidInput,
+// }
 
-impl Error for GetStateError {}
-impl fmt::Display for GetStateError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        //TODO: Improve error messages
-       match self {
-        GetStateError::IOError(x) => write!(f, "IOError({})", x),
-        GetStateError::JSONError(x) => write!(f, "JSONError({})", x),
-        GetStateError::InvalidState => write!(f, "InvalidState"),
-        GetStateError::InvalidInput => write!(f, "InvalidInput"),
-       }
-    }
-}
+// impl Error for GetStateError {}
+// impl fmt::Display for GetStateError {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         //TODO: Improve error messages
+//        match self {
+//         GetStateError::IOError(x) => write!(f, "IOError({})", x),
+//         GetStateError::JSONError(x) => write!(f, "JSONError({})", x),
+//         GetStateError::InvalidState => write!(f, "InvalidState"),
+//         GetStateError::InvalidInput => write!(f, "InvalidInput"),
+//        }
+//     }
+// }
 
-impl From<io::Error> for GetStateError {
-    fn from(e: io::Error) -> Self {
-        Self::IOError(e)
-    }
-}
+// impl From<io::Error> for GetStateError {
+//     fn from(e: io::Error) -> Self {
+//         Self::IOError(e)
+//     }
+// }
 
-impl From<serde_json::Error> for GetStateError {
-    fn from(e: serde_json::Error) -> Self {
-        Self::JSONError(e)
-    }
-}
+// impl From<serde_json::Error> for GetStateError {
+//     fn from(e: serde_json::Error) -> Self {
+//         Self::JSONError(e)
+//     }
+// }
 
-fn read_state(state_file: &str) -> Result<Vec<state::Entry>, GetStateError> {
-    let mut file = match File::open(state_file) {
-        Ok(f) => f,
-        Err(e) => {
-            if e.kind() == io::ErrorKind::NotFound {
-                let mut f = File::create(state_file)?;
-                f.write("[]".as_bytes())?;
-                drop(f);
-                File::open(state_file)?
-            } else {
-                return Err(GetStateError::from(e));
-            }
-        }
-    };
+// fn read_state(state_file: &str) -> Result<Vec<state::Entry>, GetStateError> {
+//     let mut file = match File::open(state_file) {
+//         Ok(f) => f,
+//         Err(e) => {
+//             if e.kind() == io::ErrorKind::NotFound {
+//                 let mut f = File::create(state_file)?;
+//                 f.write("[]".as_bytes())?;
+//                 drop(f);
+//                 File::open(state_file)?
+//             } else {
+//                 return Err(GetStateError::from(e));
+//             }
+//         }
+//     };
 
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
+//     let mut content = String::new();
+//     file.read_to_string(&mut content)?;
 
-    let state: Vec<state::Entry> = serde_json::from_str(&content)?;
+//     let state: Vec<state::Entry> = serde_json::from_str(&content)?;
 
-    // println!("state: {:#?}", state);
+//     // println!("state: {:#?}", state);
 
-    Ok(state)
-}
+//     Ok(state)
+// }
 
-pub fn perform_cp() {
-    let output = Command::new("cp")
-        .arg("test")
-        .arg("test2")
-        .output()
-        .unwrap();
+// pub fn perform_cp() {
+//     let output = Command::new("cp")
+//         .arg("test")
+//         .arg("test2")
+//         .output()
+//         .unwrap();
 
-    println!("Status: {:#?}", output.status);
-}
+//     println!("Status: {:#?}", output.status);
+// }
 
+pub fn run_ext(id: parser::Id, mut cmd: Vec<String>) -> Result<()> {
+    let config = Config::load()?;
 
-pub fn run_ext(state_file: &str, id: parser::Id, mut cmd: Vec<String>) -> Result<(), Box<dyn Error>>{
+    let id_path = get_path(config, &id)?;
 
-    let id_path = get_path(state_file, &id)?;
-
-    let output = Command::new(cmd.get(0).ok_or(GetStateError::InvalidInput)?)
+    let output = Command::new(cmd.get(0).ok_or(Error::IndexError)?)
         .arg(id_path)
         .args(&mut cmd[1..])
         .output()?;
 
-    println!("{:#?}", output);
+    println!("{:?}", output.stdout);
+    eprintln!("{:?}", output.stderr);
+
+    if !output.status.success() {
+        return Err(Error::ExtCmdFailed(output.status));
+    }
 
     Ok(())
 }
 
-pub fn write_state(state_file: &str, state: Vec<state::Entry>) -> Result<(), io::Error> {
-    let mut file = File::create(state_file)?;
+// pub fn write_state(state_file: &str, state: Vec<state::Entry>) -> Result<(), io::Error> {
+//     let mut file = File::create(state_file)?;
 
-    let data = serde_json::to_string(&state)?;
+//     let data = serde_json::to_string(&state)?;
 
-    file.write(data.as_bytes())?;
+//     file.write(data.as_bytes())?;
 
-    Ok(())
-}
+//     Ok(())
+// }
 
-pub fn read_state_f(state_file: &str) -> Vec<state::Entry> {
-    read_state(state_file).expect("State file should be readible and contain a valid state")
-}
+// pub fn read_state_f(state_file: &str) -> Vec<state::Entry> {
+//     read_state(state_file).expect("State file should be readible and contain a valid state")
+// }
 
-pub fn list(state_file: &str) {
-    let state = read_state_f(state_file);
+pub fn list() -> Result<()> {
+    let config = Config::load()?;
 
     println!("Clipboard:\n");
 
@@ -120,105 +124,49 @@ pub fn list(state_file: &str) {
 
     table.set_titles(row!["Id", "Path", "Name"]);
 
-    for (i, v) in state.iter().enumerate() {
-        match v {
-            state::Entry::Single(s) => {
-                table.add_row(row![
-                    i,
-                    v.get_path().into_os_string().into_string().unwrap(),
-                    s.filename(),
-                ]);
-                ()
-            }
-            state::Entry::Set(s) => {
-                table.add_row(row![
-                    i,
-                    v.get_path().into_os_string().into_string().unwrap(),
-                    s.iter()
-                        .map(|x| x.filename())
-                        .collect::<Vec<&str>>()
-                        .join(", ")
-                ]);
-                for (j, subentry) in s.iter().enumerate() {
-                    table.add_row(row![format!(".{}", j), "", subentry.filename()]);
-                }
-                ()
-            }
-        }
+    for (i, v) in config.state.iter().enumerate() {
+        let Entry { path, filename: _ } = v;
+        let fname = v
+            .filename()
+            .ok_or(Error::BadString)?
+            .to_str()
+            .ok_or(Error::BadString)?;
+        table.add_row(row![i, path.to_string_lossy(), fname]);
     }
 
     table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
 
     table.printstd();
-}
-
-fn get_path(state_file: &str, id: &parser::Id) -> Result<PathBuf, Box<dyn Error>>{
-    let state = read_state(state_file)?;
-
-    match id {
-        Id::Simple { id } => {
-            if let Entry::Single(subentry) = state.get(*id).ok_or(GetStateError::InvalidInput)? {
-                Ok(subentry.full_path())
-            } else {
-                // Simple on multi-file entry
-                // Do nothing for now
-                // TODO: implement multi-file command
-                Err(Box::new(GetStateError::InvalidInput))
-            }
-
-        }
-        Id::Specific { id, sid } => {
-            if let Entry::Set(entries) = state.get(*id).ok_or(GetStateError::InvalidInput)? {
-                let subentry = entries.get(*sid).ok_or(GetStateError::InvalidInput)?;
-                Ok(subentry.full_path())
-            } else {
-                Err(Box::new(GetStateError::InvalidInput))
-            }
-        }
-        
-    }
-
-
-    // Ok(PathBuf::new())
-}
-
-pub fn add(state_file: &str, files: Vec<PathBuf>) -> Result<(), Box<dyn Error>> {
-    let mut cur_dir = env::current_dir()?;
-    let mut first = files.first().ok_or(GetStateError::InvalidInput)?.clone();
-
-    if first.pop() {
-        // Not local file, but path to file. Add path to cur_dir
-        cur_dir = cur_dir.join(first.as_path());
-    }
-
-    let fnames: Vec<&OsStr> = files
-        .iter()
-        .map(|x| x.file_name())
-        .collect::<Option<Vec<&OsStr>>>()
-        .ok_or(GetStateError::InvalidInput)?;
-
-    let fnames: Vec<String> = fnames
-        .into_iter()
-        .map(|i| i.to_string_lossy()
-        .as_ref()
-        .to_owned())
-        .collect();
-
-    let mut state = read_state_f(state_file);
-
-    let mut files = vec![state::Entry::new(cur_dir, fnames)];
-
-    files.append(&mut state);
-
-    write_state(state_file, files).expect("Writing updated state failed.");
 
     Ok(())
 }
 
-pub fn clear(state_file: &str) {
-    write_state(state_file, Vec::new()).expect("Clearing state failed.");
+fn get_path(config: Config, id: &parser::Id) -> Result<PathBuf> {
+    match id {
+        // TODO: replace id type with single variant
+        Id::Simple { id } => {
+            let x = config.state.get(*id).ok_or(Error::IndexError)?;
+            Ok(x.full_path())
+        }
+        _ => Err(Error::IndexError),
+    }
+
+    // Ok(PathBuf::new())
 }
 
+pub fn add(files: Vec<PathBuf>) -> Result<()> {
+    let cur_dir = env::current_dir()?;
+
+    let mut config = Config::load()?;
+    config.extend(cur_dir, files);
+    config.save()?;
+    Ok(())
+}
+
+pub fn clear() -> Result<()> {
+    Config::empty().save()?;
+    Ok(())
+}
 
 // #[cfg(test)]
 // mod tests {
