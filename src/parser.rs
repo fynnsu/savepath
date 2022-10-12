@@ -33,6 +33,7 @@ fn build_parser() -> Command {
     command!()
         .subcommand_negates_reqs(true)
         .args_conflicts_with_subcommands(true)
+        .disable_help_subcommand(true)
         .arg(
             arg!(-i --id <ID> "The id of the file to modify")
                 .value_parser(parse_id)
@@ -66,10 +67,12 @@ fn build_parser() -> Command {
                         .required(true)
                         .help("Files to save to clipboard"),
                 )
-                .about("Add new paths to clipboard."),
+                .about("Add new paths to clipboard.")
+                .visible_alias("a")
         )
-        .subcommand(Command::new("list").about("List all paths on clipboard."))
-        .subcommand(Command::new("clear").about("Clear clipboard."))
+        .subcommand(Command::new("list").about("List all paths on clipboard.").visible_alias("l"))
+        .subcommand(Command::new("clear").about("Clear clipboard.").visible_alias("c"))
+        
 }
 
 pub fn parse() -> Result<CMD> {
