@@ -4,6 +4,9 @@ A Command Line Tool to simplify file operations.
 
 Note: Under development.
 
+![Image of Clipboard help page](imgs/clipboard_help.png)
+
+
 ## Usage
 ### Add a file to the clipboard using:
 
