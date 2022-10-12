@@ -99,17 +99,6 @@ pub struct Entry {
     path: PathBuf,
 }
 
-// impl fmt::Display for Entry {
-//     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-//         fmt.write_str(&format!(
-//             "{:#?}\t{:#?}",
-//             self.path,
-//             // self.filename.clone().unwrap_or_default()
-//         ))?;
-//         Ok(())
-//     }
-// }
-
 impl Entry {
     pub fn build(path: &PathBuf, filename: PathBuf) -> Result<Self> {
         let mut path = path.clone();
@@ -122,19 +111,4 @@ impl Entry {
     pub fn path(&self) -> &PathBuf {
         &self.path
     }
-
-    // pub fn filename(&self) -> Option<&OsStr> {
-    //     match &self.filename {
-    //         Some(x) => Some(&x[..]),
-    //         None => None,
-    //     }
-    // }
-
-    // pub fn full_path(&self) -> PathBuf {
-    //     let mut p = self.path.clone();
-    //     if self.filename.is_some() {
-    //         p.push(self.filename().unwrap())
-    //     }
-    //     p
-    // }
 }
