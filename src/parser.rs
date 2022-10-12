@@ -1,20 +1,17 @@
-use std::path::PathBuf;
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
+use std::path::PathBuf;
 
 use crate::error::Result;
 
 #[derive(Clone, Debug)]
-pub struct Id (pub isize,);
+pub struct Id(pub isize);
 
 fn parse_id(s: &str) -> Result<Id, String> {
-
     if let Ok(id) = s.parse() {
         return Ok(Id(id));
     }
 
-    Err(String::from(
-        "Couldn't parse file id. Must be integer.",
-    ))
+    Err(String::from("Couldn't parse file id. Must be integer."))
 }
 
 #[derive(Debug)]

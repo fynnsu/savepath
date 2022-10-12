@@ -88,16 +88,21 @@ pub fn run_ext(id: parser::Id, mut cmd: Vec<String>) -> Result<()> {
     let output = Command::new(cmd.get(0).ok_or(Error::IndexError)?)
         .arg(id_path)
         .args(&mut cmd[1..])
+        // .spawn()?;
         .output()?;
 
-    println!("{:?}", output.stdout);
-    eprintln!("{:?}", output.stderr);
-
-    if !output.status.success() {
-        return Err(Error::ExtCmdFailed(output.status));
+    if !output.stdout.is_empty() {
+        println!("{}", String::from_utf8_lossy(&output.stdout));
+    }
+    if !output.stderr.is_empty() {
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
     }
 
-    Ok(())
+    if !output.status.success() {
+        Err(Error::ExtCmdFailed(output.status))
+    } else {
+        Ok(())
+    }
 }
 
 // pub fn write_state(state_file: &str, state: Vec<state::Entry>) -> Result<(), io::Error> {
