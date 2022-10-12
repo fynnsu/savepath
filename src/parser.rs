@@ -1,5 +1,5 @@
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
-use std::path::PathBuf;
+use std::{ffi::OsString, path::PathBuf};
 
 use crate::error::Result;
 
@@ -16,10 +16,17 @@ fn parse_id(s: &str) -> Result<Id, String> {
 
 #[derive(Debug)]
 pub enum CMD {
-    Add { files: Vec<PathBuf> },
+    Add {
+        files: Vec<PathBuf>,
+    },
     List,
     Clear,
-    ExtCmd { id: Id, cmd: String, args: Vec<String> },
+    ExtCmd {
+        id: Id,
+        cmd: OsString,
+        args: Vec<OsString>,
+        use_pos: bool,
+    },
 }
 
 fn build_parser() -> Command {
@@ -32,26 +39,34 @@ fn build_parser() -> Command {
                 .default_value("0"),
         )
         .arg(
+            arg!(-p --pos "Insert path where specified by '$' in ext_args.")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
             Arg::new("ext_cmd")
                 .action(ArgAction::Set)
                 .required(true)
-                .help("External command to run.")
+                .value_parser(value_parser!(OsString))
+                .help("External command to run."),
         )
         .arg(
             Arg::new("ext_args")
                 .action(ArgAction::Set)
                 .num_args(1..)
+                .value_parser(value_parser!(OsString))
                 .trailing_var_arg(true)
-                .help("Arguments for external command.")
+                .help("Arguments for external command."),
         )
         .subcommand(
-            Command::new("add").arg(
-                Arg::new("files")
-                    .action(ArgAction::Append)
-                    .value_parser(value_parser!(PathBuf))
-                    .required(true)
-                    .help("Files to save to clipboard"),
-            ).about("Add new paths to clipboard.")
+            Command::new("add")
+                .arg(
+                    Arg::new("files")
+                        .action(ArgAction::Append)
+                        .value_parser(value_parser!(PathBuf))
+                        .required(true)
+                        .help("Files to save to clipboard"),
+                )
+                .about("Add new paths to clipboard."),
         )
         .subcommand(Command::new("list").about("List all paths on clipboard."))
         .subcommand(Command::new("clear").about("Clear clipboard."))
@@ -73,10 +88,11 @@ pub fn parse() -> Result<CMD> {
         Some(("list", _)) => Ok(CMD::List),
         Some(("clear", _)) => Ok(CMD::Clear),
         None => {
-            let ext_cmd: String = matches
-                .get_one::<String>("ext_cmd")
-                .expect("ext_cmd is a required argument").clone();
-            let cmd_args: Vec<String> = matches
+            let cmd: OsString = matches
+                .get_one::<OsString>("ext_cmd")
+                .expect("ext_cmd is a required argument")
+                .clone();
+            let args: Vec<OsString> = matches
                 .get_many("ext_args")
                 .unwrap_or_default()
                 .cloned()
@@ -87,7 +103,14 @@ pub fn parse() -> Result<CMD> {
                 .expect("id has a default value")
                 .clone();
 
-            Ok(CMD::ExtCmd { id, cmd: ext_cmd, args: cmd_args })
+            let use_pos: bool = matches.get_flag("pos");
+
+            Ok(CMD::ExtCmd {
+                id,
+                cmd,
+                args,
+                use_pos,
+            })
         }
         Some(_) => unreachable!("There are no other subcommands"),
     }

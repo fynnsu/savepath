@@ -1,6 +1,7 @@
 use std::env;
+use std::ffi::OsString;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command};
 #[macro_use]
 extern crate prettytable;
 use prettytable::{format, Table};
@@ -12,16 +13,36 @@ pub mod error;
 pub mod parser;
 pub mod state;
 
-pub fn run_ext(id: parser::Id, cmd: String, args: Vec<String> ) -> Result<()> {
+pub fn run_ext(
+    id: parser::Id,
+    use_pos: bool,
+    cmd_name: OsString,
+    mut args: Vec<OsString>,
+) -> Result<()> {
     let config = Config::load()?;
 
     let id_path = get_path(&config, &id)?;
 
-    let output = Command::new(cmd)
-        .arg(id_path)
-        .args(args)
-        // .spawn()?;
-        .output()?;
+    if use_pos {
+        args = args
+            .iter()
+            .map(|x| {
+                if x == "$" {
+                    From::from(id_path)
+                } else {
+                    From::from(x)
+                }
+            })
+            .collect();
+    } else {
+        args.insert(0, From::from(id_path));
+    }
+    let mut cmd = Command::new(cmd_name);
+    let cmd = cmd.args(args);
+
+    println!("Running Command:\n{:?}\n", cmd);
+
+    let output = cmd.output()?;
 
     if !output.stdout.is_empty() {
         println!("{}", String::from_utf8_lossy(&output.stdout));
