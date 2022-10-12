@@ -19,20 +19,44 @@ Output:
 ```
 Clipboard:
 
- Id | Path | Name 
-----+------+----------
- 0  | /    | file.txt 
+ Id | Path
+----+------------------------
+ 0  | /PATH/TO/FILE/file.txt
 ```
 
 ### Use file in external command
 ```
-cb cp file_copy.txt
+cb cp file2.txt
 ```
 Equivalent to:
 ```
-cp /file.txt file_copy.txt
+cp /PATH/TO/FILE/file.txt file2.txt
 ```
-Runs other existing commands (like: `cp, cat, ls`) and substitute filepath as first argument.
+Runs any existing commands (like: `cp, cat, ls`) and substitute filepath as first argument.
+
+### Alternatively, use the `-p` (`--pos`) flag and `$` to insert into a different location
+```
+cb add my_dir
+cb -p rm -R -f $
+```
+will run
+```
+rm -R -f /PATH/TO/MY/DIR/my_dir
+```
+
+Note: currently `$` will only be replaced with the path if it is passed as an argument (and not a substring of an argument).
+i.e.
+`cb -p ls $` works but `cb ls $/sub_dir` doesn't. 
+
+### Or substitute multiple times
+```
+cb add x.txt
+cb -p mv $ $
+```
+will run
+```
+mv /PATH/TO/X/x.txt /PATH/TO/X/x.txt
+```
 
 
 ## Install
