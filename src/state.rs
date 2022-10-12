@@ -25,7 +25,7 @@ fn get_path() -> Result<PathBuf> {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Config {
-    pub state: Vec<Entry>,
+    state: Vec<Entry>,
 }
 
 impl Config {
@@ -35,18 +35,8 @@ impl Config {
         Ok(Config { state: v })
     }
 
-    pub fn get(&self, index: isize) -> Result<&Entry> {
-        if index >= 0 {
-            return self.state.get(index as usize).ok_or(Error::IndexError);
-        }
-
-        let index = self.state.len() as isize + index;
-
-        if index < 0 {
-            return Err(Error::IndexError);
-        }
-
-        return self.state.get(index as usize).ok_or(Error::IndexError);
+    pub fn get(&self, index: usize) -> Result<&Entry> {
+        self.state.get(index).ok_or(Error::IndexError)
     }
 
     fn create_vec(cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<Vec<Entry>> {
@@ -57,6 +47,11 @@ impl Config {
 
         Ok(v)
     }
+
+    pub fn iter(&self) -> std::slice::Iter<Entry> {
+        self.state.iter()
+    }
+
 
     pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<()> {
         let mut v = Config::create_vec(cur_dir, files)?;

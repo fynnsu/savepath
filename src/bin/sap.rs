@@ -1,7 +1,7 @@
-use clipboard::parse::sap::{self, CMD};
 use clipboard::error::Result;
+use clipboard::parse::sap::{self, CMD};
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     let cmd = sap::parse()?;
 
     // println!("{:#?}", cmd);
@@ -9,16 +9,14 @@ fn main() -> Result<()>{
     match cmd {
         CMD::List => {
             clipboard::list()?;
-        },
+        }
         CMD::Clear => {
             clipboard::clear()?;
-        },
+        }
         CMD::Add { files } => {
             clipboard::add(files)?;
-        },
-        CMD::Alias => {
-            ()
         }
+        CMD::Alias => (),
     }
 
     Ok(())

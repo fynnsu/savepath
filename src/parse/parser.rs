@@ -68,11 +68,18 @@ fn build_parser() -> Command {
                         .help("Files to save to clipboard"),
                 )
                 .about("Add new paths to clipboard.")
-                .visible_alias("a")
+                .visible_alias("a"),
         )
-        .subcommand(Command::new("list").about("List all paths on clipboard.").visible_alias("l"))
-        .subcommand(Command::new("clear").about("Clear clipboard.").visible_alias("c"))
-        
+        .subcommand(
+            Command::new("list")
+                .about("List all paths on clipboard.")
+                .visible_alias("l"),
+        )
+        .subcommand(
+            Command::new("clear")
+                .about("Clear clipboard.")
+                .visible_alias("c"),
+        )
 }
 
 pub fn parse() -> Result<CMD> {

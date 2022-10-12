@@ -5,23 +5,22 @@ use std::path::PathBuf;
 extern crate prettytable;
 use prettytable::{format, Table};
 
-use crate::error::{Result, Error};
+use crate::error::{Error, Result};
 use crate::state::Config;
-use crate::parse::parser;
 
 pub mod error;
 pub mod parse;
 pub mod state;
 
 pub fn run_ext(
-    id: parser::Id,
+    id: usize,
     use_pos: bool,
     cmd_name: OsString,
     mut args: Vec<OsString>,
 ) -> Result<()> {
     let config = Config::load()?;
 
-    let id_path = get_path(&config, &id)?;
+    let id_path = config.get(id)?.path();
 
     if use_pos {
         args = args
@@ -55,7 +54,7 @@ pub fn list() -> Result<()> {
 
     table.set_titles(row!["Id", "Path"]);
 
-    for (i, v) in config.state.iter().enumerate() {
+    for (i, v) in config.iter().enumerate() {
         table.add_row(row![i, v.path().to_string_lossy()]);
     }
 
@@ -64,11 +63,6 @@ pub fn list() -> Result<()> {
     table.printstd();
 
     Ok(())
-}
-
-fn get_path<'a>(config: &'a Config, id: &parser::Id) -> Result<&'a PathBuf> {
-    let x = config.get(id.0)?;
-    Ok(x.path())
 }
 
 pub fn add(files: Vec<PathBuf>) -> Result<()> {
