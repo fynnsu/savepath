@@ -1,26 +1,19 @@
-use sscanf::scanf;
 use std::path::PathBuf;
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 
 use crate::error::Result;
 
 #[derive(Clone, Debug)]
-pub enum Id {
-    Simple { id: usize },
-    Specific { id: usize, sid: usize },
-}
+pub struct Id (pub isize,);
 
 fn parse_id(s: &str) -> Result<Id, String> {
-    if let Ok((id, sid)) = scanf!(s, "{}.{}", usize, usize) {
-        return Ok(Id::Specific { id, sid });
-    }
 
     if let Ok(id) = s.parse() {
-        return Ok(Id::Simple { id });
+        return Ok(Id(id));
     }
 
     Err(String::from(
-        "Couldn't parse file id. Must be either uint or x.y where x and y are uints.",
+        "Couldn't parse file id. Must be integer.",
     ))
 }
 

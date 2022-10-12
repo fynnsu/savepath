@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "aho-corasick"
-version = "0.7.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4f55bd91a0978cbfd91c457a164bab8b4001c833b7f323132c0a4e1922dd44e"
-dependencies = [
- "memchr",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -98,27 +89,6 @@ dependencies = [
  "prettytable-rs",
  "ron",
  "serde",
- "sscanf",
-]
-
-[[package]]
-name = "const_format"
-version = "0.2.30"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7309d9b4d3d2c0641e018d449232f2e28f1b22933c137f157d3dbc14228b8c0e"
-dependencies = [
- "const_format_proc_macros",
-]
-
-[[package]]
-name = "const_format_proc_macros"
-version = "0.2.29"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d897f47bf7270cf70d370f8f98c1abb6d2d4cf60a6845d30e05bfb90c6568650"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-xid",
 ]
 
 [[package]]
@@ -329,27 +299,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c4eb3267174b8c6c2f654116623910a0fef09c4753f8dd83db29c48a0df988b"
-dependencies = [
- "aho-corasick",
- "memchr",
- "regex-syntax",
-]
-
-[[package]]
 name = "regex-automata"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132"
-
-[[package]]
-name = "regex-syntax"
-version = "0.6.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3f87b73ce11b1619a3c6332f45341e0047173771e8b8b73f87bfeefb7b56244"
 
 [[package]]
 name = "ron"
@@ -391,30 +344,6 @@ checksum = "81fa1584d3d1bcacd84c277a0dfe21f5b0f6accf4a23d04d4c6d61f1af522b4c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
-]
-
-[[package]]
-name = "sscanf"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ecdd7ea17bcadebf81d656db919f58f96c1d194d748cf0839a44a220123eedd"
-dependencies = [
- "const_format",
- "lazy_static",
- "regex",
- "sscanf_macro",
-]
-
-[[package]]
-name = "sscanf_macro"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe2309d255caf220c1ff9f380d89420a1377de1cabc1d57e0b308e53b0406bed"
-dependencies = [
- "proc-macro2",
- "quote",
- "regex-syntax",
  "syn",
 ]
 
@@ -486,12 +415,6 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
-
-[[package]]
-name = "unicode-xid"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 
 [[package]]
 name = "version_check"

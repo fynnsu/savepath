@@ -6,7 +6,6 @@ extern crate prettytable;
 use prettytable::{format, Table};
 
 use crate::error::{Error, Result};
-use crate::parser::Id;
 use crate::state::{Config, Entry};
 
 pub mod error;
@@ -142,16 +141,8 @@ pub fn list() -> Result<()> {
 }
 
 fn get_path(config: Config, id: &parser::Id) -> Result<PathBuf> {
-    match id {
-        // TODO: replace id type with single variant
-        Id::Simple { id } => {
-            let x = config.state.get(*id).ok_or(Error::IndexError)?;
-            Ok(x.full_path())
-        }
-        _ => Err(Error::IndexError),
-    }
-
-    // Ok(PathBuf::new())
+    let x = config.get(id.0)?;
+    Ok(x.full_path())
 }
 
 pub fn add(files: Vec<PathBuf>) -> Result<()> {

@@ -39,6 +39,20 @@ impl Config {
         Config { state: v }
     }
 
+    pub fn get(&self, index: isize) -> Result<&Entry> {
+        if index >= 0 {
+            return self.state.get(index as usize).ok_or(Error::IndexError);
+        }
+
+        let index = self.state.len() as isize + index;
+
+        if index < 0 {
+            return Err(Error::IndexError);
+        }
+
+        return self.state.get(index as usize).ok_or(Error::IndexError);
+    }
+
     pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) {
         let mut v: Vec<Entry> = files
             .iter()
