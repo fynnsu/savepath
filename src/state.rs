@@ -1,10 +1,9 @@
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
-use std::ffi::{OsStr, OsString};
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use std::{fmt, fs};
 
 use crate::error::{Error, Result};
 
@@ -30,13 +29,10 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(cur_dir: PathBuf, files: Vec<PathBuf>) -> Self {
-        let v: Vec<Entry> = files
-            .iter()
-            .map(|x| Entry::new(&cur_dir, x.to_path_buf()))
-            .collect();
+    pub fn build(cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<Self> {
+        let v = Config::create_vec(cur_dir, files)?;
 
-        Config { state: v }
+        Ok(Config { state: v })
     }
 
     pub fn get(&self, index: isize) -> Result<&Entry> {
@@ -53,13 +49,20 @@ impl Config {
         return self.state.get(index as usize).ok_or(Error::IndexError);
     }
 
-    pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) {
-        let mut v: Vec<Entry> = files
-            .iter()
-            .map(|x| Entry::new(&cur_dir, x.to_path_buf()))
-            .collect();
+    fn create_vec(cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<Vec<Entry>> {
+        let v: Vec<Entry> = files
+            .into_iter()
+            .map(|x| Entry::build(&cur_dir, x.to_path_buf()))
+            .collect::<Result<Vec<Entry>>>()?;
+
+        Ok(v)
+    }
+
+    pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<()> {
+        let mut v = Config::create_vec(cur_dir, files)?;
         v.append(&mut self.state); // new entries first
-        self.state = v
+        self.state = v;
+        Ok(())
     }
 
     pub fn empty() -> Self {
@@ -89,54 +92,49 @@ impl Config {
         let config: Self = ron::from_str(&data)?;
         Ok(config)
     }
-
-}
-
-impl fmt::Display for Entry {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(&format!(
-            "{:#?}\t{:#?}",
-            self.path,
-            self.filename.clone().unwrap_or_default()
-        ))?;
-        Ok(())
-    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Entry {
-    pub path: PathBuf,
-    pub filename: Option<OsString>,
+    path: PathBuf,
 }
 
+// impl fmt::Display for Entry {
+//     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+//         fmt.write_str(&format!(
+//             "{:#?}\t{:#?}",
+//             self.path,
+//             // self.filename.clone().unwrap_or_default()
+//         ))?;
+//         Ok(())
+//     }
+// }
+
 impl Entry {
-    pub fn new(path: &PathBuf, filename: PathBuf) -> Self {
-        let name = filename.file_name();
-        let mut fname = filename.clone();
-        let path = if fname.pop() {
-            path.clone().join(fname.as_path())
-        } else {
-            path.clone()
-        };
+    pub fn build(path: &PathBuf, filename: PathBuf) -> Result<Self> {
+        let mut path = path.clone();
+        path = path.join(filename);
+        path = path.canonicalize()?;
 
-        Entry {
-            path,
-            filename: name.map(|x| OsString::from(x)),
-        }
+        Ok(Entry { path })
     }
 
-    pub fn filename(&self) -> Option<&OsStr> {
-        match &self.filename {
-            Some(x) => Some(&x[..]),
-            None => None,
-        }
+    pub fn path(&self) -> &PathBuf {
+        &self.path
     }
 
-    pub fn full_path(&self) -> PathBuf {
-        let mut p = self.path.clone();
-        if self.filename.is_some() {
-            p.push(self.filename().unwrap())
-        }
-        p
-    }
+    // pub fn filename(&self) -> Option<&OsStr> {
+    //     match &self.filename {
+    //         Some(x) => Some(&x[..]),
+    //         None => None,
+    //     }
+    // }
+
+    // pub fn full_path(&self) -> PathBuf {
+    //     let mut p = self.path.clone();
+    //     if self.filename.is_some() {
+    //         p.push(self.filename().unwrap())
+    //     }
+    //     p
+    // }
 }

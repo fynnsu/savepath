@@ -6,7 +6,7 @@ extern crate prettytable;
 use prettytable::{format, Table};
 
 use crate::error::{Error, Result};
-use crate::state::{Config, Entry};
+use crate::state::Config;
 
 pub mod error;
 pub mod parser;
@@ -15,7 +15,7 @@ pub mod state;
 pub fn run_ext(id: parser::Id, mut cmd: Vec<String>) -> Result<()> {
     let config = Config::load()?;
 
-    let id_path = get_path(config, &id)?;
+    let id_path = get_path(&config, &id)?;
 
     let output = Command::new(cmd.get(0).ok_or(Error::IndexError)?)
         .arg(id_path)
@@ -44,16 +44,10 @@ pub fn list() -> Result<()> {
 
     let mut table = Table::new();
 
-    table.set_titles(row!["Id", "Path", "Name"]);
+    table.set_titles(row!["Id", "Path"]);
 
     for (i, v) in config.state.iter().enumerate() {
-        let Entry { path, filename: _ } = v;
-        let fname = v
-            .filename()
-            .ok_or(Error::BadString)?
-            .to_str()
-            .ok_or(Error::BadString)?;
-        table.add_row(row![i, path.to_string_lossy(), fname]);
+        table.add_row(row![i, v.path().to_string_lossy()]);
     }
 
     table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
@@ -63,16 +57,16 @@ pub fn list() -> Result<()> {
     Ok(())
 }
 
-fn get_path(config: Config, id: &parser::Id) -> Result<PathBuf> {
+fn get_path<'a>(config: &'a Config, id: &parser::Id) -> Result<&'a PathBuf> {
     let x = config.get(id.0)?;
-    Ok(x.full_path())
+    Ok(x.path())
 }
 
 pub fn add(files: Vec<PathBuf>) -> Result<()> {
     let cur_dir = env::current_dir()?;
 
     let mut config = Config::load()?;
-    config.extend(cur_dir, files);
+    config.extend(cur_dir, files)?;
     config.save()?;
     Ok(())
 }
