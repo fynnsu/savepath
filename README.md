@@ -20,26 +20,37 @@ Output:
 Clipboard:
 
  Id | Path
-----+------------------------
+----+-------------------------------
  0  | /PATH/TO/FILE/file.txt
+ 1  | /PATH/TO/OLDER/FILE/older.txt
 ```
 
-### Use file in external command
+### Use most recently added path in external command
+Runs any existing commands (like: `cp, cat, ls`) and substitute filepath as first argument.
 ```
 cb cp file2.txt
 ```
-Equivalent to:
+Runs:
 ```
 cp /PATH/TO/FILE/file.txt file2.txt
 ```
-Runs any existing commands (like: `cp, cat, ls`) and substitute filepath as first argument.
 
-### Alternatively, use the `-p` (`--pos`) flag and `$` to insert into a different location
+### Use `-i` (`--id`) to insert a different file from clipboard
+```
+cb -i 1 cp file2.txt
+```
+Runs:
+```
+cp /PATH/TO/OLDER/FILE/older.txt file2.txt
+```
+
+
+### Use `-p` (`--pos`) flag and `$` to insert into a different location
 ```
 cb add my_dir
 cb -p rm -R -f $
 ```
-will run
+Runs:
 ```
 rm -R -f /PATH/TO/MY/DIR/my_dir
 ```
@@ -53,7 +64,7 @@ i.e.
 cb add x.txt
 cb -p mv $ $
 ```
-will run
+Runs:
 ```
 mv /PATH/TO/X/x.txt /PATH/TO/X/x.txt
 ```
