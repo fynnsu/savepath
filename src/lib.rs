@@ -12,14 +12,14 @@ pub mod error;
 pub mod parser;
 pub mod state;
 
-pub fn run_ext(id: parser::Id, mut cmd: Vec<String>) -> Result<()> {
+pub fn run_ext(id: parser::Id, cmd: String, args: Vec<String> ) -> Result<()> {
     let config = Config::load()?;
 
     let id_path = get_path(&config, &id)?;
 
-    let output = Command::new(cmd.get(0).ok_or(Error::IndexError)?)
+    let output = Command::new(cmd)
         .arg(id_path)
-        .args(&mut cmd[1..])
+        .args(args)
         // .spawn()?;
         .output()?;
 

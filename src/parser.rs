@@ -19,11 +19,11 @@ pub enum CMD {
     Add { files: Vec<PathBuf> },
     List,
     Clear,
-    ExtCmd { id: Id, cmd: Vec<String> },
+    ExtCmd { id: Id, cmd: String, args: Vec<String> },
 }
 
-pub fn parse() -> Result<CMD> {
-    let matches = command!()
+fn build_parser() -> Command {
+    command!()
         .subcommand_negates_reqs(true)
         .args_conflicts_with_subcommands(true)
         .arg(
@@ -32,11 +32,17 @@ pub fn parse() -> Result<CMD> {
                 .default_value("0"),
         )
         .arg(
-            Arg::new("ext")
+            Arg::new("ext_cmd")
+                .action(ArgAction::Set)
+                .required(true)
+                .help("External command to run.")
+        )
+        .arg(
+            Arg::new("ext_args")
                 .action(ArgAction::Set)
                 .num_args(1..)
-                .required(true)
-                .trailing_var_arg(true),
+                .trailing_var_arg(true)
+                .help("Arguments for external command.")
         )
         .subcommand(
             Command::new("add").arg(
@@ -45,11 +51,14 @@ pub fn parse() -> Result<CMD> {
                     .value_parser(value_parser!(PathBuf))
                     .required(true)
                     .help("Files to save to clipboard"),
-            ),
+            ).about("Add new paths to clipboard.")
         )
-        .subcommand(Command::new("list"))
-        .subcommand(Command::new("clear"))
-        .get_matches();
+        .subcommand(Command::new("list").about("List all paths on clipboard."))
+        .subcommand(Command::new("clear").about("Clear clipboard."))
+}
+
+pub fn parse() -> Result<CMD> {
+    let matches = build_parser().get_matches();
 
     match matches.subcommand() {
         Some(("add", sub_m)) => {
@@ -64,9 +73,12 @@ pub fn parse() -> Result<CMD> {
         Some(("list", _)) => Ok(CMD::List),
         Some(("clear", _)) => Ok(CMD::Clear),
         None => {
-            let ext_cmd = matches
-                .get_many("ext")
-                .expect("ext is a required argument")
+            let ext_cmd: String = matches
+                .get_one::<String>("ext_cmd")
+                .expect("ext_cmd is a required argument").clone();
+            let cmd_args: Vec<String> = matches
+                .get_many("ext_args")
+                .unwrap_or_default()
                 .cloned()
                 .collect();
 
@@ -75,7 +87,7 @@ pub fn parse() -> Result<CMD> {
                 .expect("id has a default value")
                 .clone();
 
-            Ok(CMD::ExtCmd { id, cmd: ext_cmd })
+            Ok(CMD::ExtCmd { id, cmd: ext_cmd, args: cmd_args })
         }
         Some(_) => unreachable!("There are no other subcommands"),
     }

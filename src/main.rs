@@ -18,8 +18,8 @@ fn main() -> Result<()> {
             // let files = files.iter().map(|e| e.to_string_lossy().into_owned()).collect();
             clipboard::add(files)?;
         }
-        CMD::ExtCmd { id, cmd } => {
-            clipboard::run_ext(id, cmd)?;
+        CMD::ExtCmd { id, cmd , args } => {
+            clipboard::run_ext(id, cmd, args)?;
         }
     }
 
