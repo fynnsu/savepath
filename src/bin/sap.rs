@@ -1,8 +1,8 @@
-use clipboard::parse::sp::{self, CMD};
+use clipboard::parse::sap::{self, CMD};
 use clipboard::error::Result;
 
 fn main() -> Result<()>{
-    let cmd = sp::parse()?;
+    let cmd = sap::parse()?;
 
     // println!("{:#?}", cmd);
 
