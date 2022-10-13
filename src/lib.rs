@@ -1,11 +1,11 @@
 use std::env;
-use std::ffi::OsString;
 use std::path::PathBuf;
 #[macro_use]
 extern crate prettytable;
 use prettytable::{format, Table};
 
-use crate::error::{Error, Result};
+use crate::error::Result;
+use crate::parse::pap::ExtCmd;
 use crate::state::Config;
 
 pub mod error;
@@ -15,35 +15,37 @@ pub mod utils;
 
 const ALIAS_PLACEHOLDER: &str = "SAVEPATH_ALIAS_PLACEHOLDER";
 
-pub fn print_modified_cmd(
-    id: usize,
-    use_pos: bool,
-    cmd_name: OsString,
-    mut args: Vec<OsString>,
-) -> Result<()> {
+pub fn create_modified_cmd(mut ext_cmd: ExtCmd) -> Result<String> {
     let config = Config::load()?;
 
-    let id_path = config.get(id)?.path();
+    let id_path = config.get(ext_cmd.id)?.path().to_string_lossy().to_owned();
 
-    if use_pos {
-        args = args
+    if ext_cmd.use_pos {
+        ext_cmd.args = ext_cmd
+            .args
             .iter()
             .map(|x| {
                 if x == "$" {
-                    From::from(id_path)
+                    From::from(id_path.clone())
                 } else {
                     From::from(x)
                 }
             })
             .collect();
     } else {
-        args.insert(0, From::from(id_path));
+        ext_cmd.args.insert(0, From::from(id_path));
     }
-    let mut cmd = cmd_name.clone();
-    cmd.push(" ");
-    cmd.push(args.join(&OsString::from(" ")));
 
-    println!("{}", cmd.to_str().ok_or(Error::BadString)?);
+    let mut cmd = ext_cmd.cmd.clone();
+    cmd.push(' ');
+    cmd.push_str(&ext_cmd.args.join(" "));
+    Ok(cmd)
+}
+
+pub fn print_modified_cmd(ext_cmd: ExtCmd) -> Result<()> {
+    let cmd = create_modified_cmd(ext_cmd)?;
+
+    println!("{}", cmd);
 
     Ok(())
 }

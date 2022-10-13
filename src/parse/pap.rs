@@ -1,13 +1,12 @@
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
-use std::ffi::OsString;
 
 use crate::error::Result;
 
 #[derive(Debug)]
 pub struct ExtCmd {
     pub id: usize,
-    pub cmd: OsString,
-    pub args: Vec<OsString>,
+    pub cmd: String,
+    pub args: Vec<String>,
     pub use_pos: bool,
 }
 
@@ -26,14 +25,12 @@ fn build_parser() -> Command {
             Arg::new("ext_cmd")
                 .action(ArgAction::Set)
                 .required(true)
-                .value_parser(value_parser!(OsString))
                 .help("External command to run."),
         )
         .arg(
             Arg::new("ext_args")
                 .action(ArgAction::Set)
                 .num_args(1..)
-                .value_parser(value_parser!(OsString))
                 .trailing_var_arg(true)
                 .help("Arguments for external command."),
         )
@@ -42,12 +39,12 @@ fn build_parser() -> Command {
 pub fn parse() -> Result<ExtCmd> {
     let matches = build_parser().get_matches();
 
-    let cmd: OsString = matches
-        .get_one::<OsString>("ext_cmd")
+    let cmd: String = matches
+        .get_one::<String>("ext_cmd")
         .expect("ext_cmd is a required argument")
         .clone();
 
-    let args: Vec<OsString> = matches
+    let args: Vec<String> = matches
         .get_many("ext_args")
         .unwrap_or_default()
         .cloned()

@@ -1,14 +1,16 @@
-use clap::{arg, command, value_parser, Arg, ArgAction, ArgGroup, Command, parser::ValueSource, ArgMatches};
-use std::{path::PathBuf, ffi::OsString};
+use clap::{
+    arg, command, parser::ValueSource, value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
+};
+use std::path::PathBuf;
 
-use crate::error::{Result, Error};
+use crate::error::{Error, Result};
 
 #[derive(Debug)]
 pub enum CMD {
     Add { files: Vec<PathBuf> },
     List,
     Clear,
-    Alias { alias: OsString },
+    Alias { alias: String },
 }
 
 fn build_parser() -> Command {
@@ -22,8 +24,7 @@ fn build_parser() -> Command {
                 .num_args(0..2)
                 .value_name("ALIAS")
                 .default_value("up")
-                .default_missing_value("up")
-                .value_parser(value_parser!(OsString))
+                .default_missing_value("up"),
         )
         .arg(
             Arg::new("color")
@@ -65,8 +66,11 @@ pub fn parse() -> Result<CMD> {
     } else if matches.get_flag("clear") {
         Ok(CMD::Clear)
     } else if check_alias_flag(&matches) {
-        let alias: OsString = matches.get_one::<OsString>("alias").ok_or(Error::ParseError)?.clone();
-        Ok(CMD::Alias { alias } )
+        let alias: String = matches
+            .get_one::<String>("alias")
+            .ok_or(Error::ParseError)?
+            .clone();
+        Ok(CMD::Alias { alias })
     } else {
         let files = matches
             .get_many("files")

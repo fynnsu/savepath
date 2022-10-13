@@ -36,7 +36,6 @@ impl Config {
         self.state.iter()
     }
 
-
     pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<()> {
         let mut v = Config::create_vec(cur_dir, files)?;
         v.append(&mut self.state); // new entries first

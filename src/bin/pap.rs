@@ -1,11 +1,13 @@
 use clipboard::error::Result;
-use clipboard::parse::pap::{self, ExtCmd};
+use clipboard::parse::pap::{self};
+use clipboard::utils;
 
 fn main() -> Result<()> {
-    let ExtCmd { id, cmd, args, use_pos } = pap::parse()?;
+    let ext_cmd = pap::parse()?;
 
-    // println!("{:#?}", cmd);
-    clipboard::print_modified_cmd(id, use_pos, cmd, args)?;
+    let cmd = clipboard::create_modified_cmd(ext_cmd)?;
+
+    utils::write_command(&cmd, false);
 
     Ok(())
 }
