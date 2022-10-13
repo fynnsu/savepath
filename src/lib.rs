@@ -11,8 +11,11 @@ use crate::state::Config;
 pub mod error;
 pub mod parse;
 pub mod state;
+pub mod utils;
 
-pub fn run_ext(
+const ALIAS_PLACEHOLDER: &str = "SAVEPATH_ALIAS_PLACEHOLDER";
+
+pub fn print_modified_cmd(
     id: usize,
     use_pos: bool,
     cmd_name: OsString,
@@ -41,6 +44,19 @@ pub fn run_ext(
     cmd.push(args.join(&OsString::from(" ")));
 
     println!("{}", cmd.to_str().ok_or(Error::BadString)?);
+
+    Ok(())
+}
+
+pub fn print_alias(alias_name: &str, shell_name: &str) -> Result<()> {
+    // Read script template for shell_name
+    let script = utils::get_shell_template(shell_name)?;
+
+    // replace alias_placeholdr with alias_name
+    let script = script.replace(ALIAS_PLACEHOLDER, alias_name);
+
+    // print resulting string
+    println!("{}", script);
 
     Ok(())
 }

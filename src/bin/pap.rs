@@ -5,7 +5,7 @@ fn main() -> Result<()> {
     let ExtCmd { id, cmd, args, use_pos } = pap::parse()?;
 
     // println!("{:#?}", cmd);
-    clipboard::run_ext(id, use_pos, cmd, args)?;
+    clipboard::print_modified_cmd(id, use_pos, cmd, args)?;
 
     Ok(())
 }
