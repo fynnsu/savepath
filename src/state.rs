@@ -1,4 +1,3 @@
-use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -6,22 +5,7 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::error::{Error, Result};
-
-const QUALIFIER: &str = "com";
-const ORGANIZATION: &str = "fynnsu";
-const APPLICATION: &str = "clipboard";
-const CONFIG_FILE: &str = "config.ron";
-
-fn get_path() -> Result<PathBuf> {
-    if let Some(proj_dirs) = ProjectDirs::from(QUALIFIER, ORGANIZATION, APPLICATION) {
-        let mut path = PathBuf::from(proj_dirs.cache_dir());
-        path.push(CONFIG_FILE);
-        // println!("Path: {:#?}", path);
-        Ok(path)
-    } else {
-        Err(Error::ApplicationDirNotAccessible)
-    }
-}
+use crate::utils;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Config {
@@ -65,7 +49,7 @@ impl Config {
     }
 
     pub fn save(&self) -> Result<()> {
-        let path = get_path()?;
+        let path = utils::get_config_path()?;
         if let Some(p) = path.parent() {
             fs::create_dir_all(p)?
         };
@@ -78,7 +62,7 @@ impl Config {
     }
 
     pub fn load() -> Result<Self> {
-        let path = get_path()?;
+        let path = utils::get_config_path()?;
         if !path.exists() {
             Self::empty().save()?;
         }
