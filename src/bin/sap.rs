@@ -16,7 +16,9 @@ fn main() -> Result<()> {
         CMD::Add { files } => {
             clipboard::add(files)?;
         }
-        CMD::Alias => (),
+        CMD::Alias { alias } => {
+            println!("{:#?}", alias);
+        }
     }
 
     Ok(())

@@ -9,6 +9,7 @@ pub enum Error {
     Io(IoError),
     IndexError,
     BadString,
+    ParseError,
     ApplicationDirNotAccessible,
     ExtCmdFailed(ExitStatus),
 }
