@@ -6,6 +6,8 @@ Note: Under development.
 
 ![Image of Clipboard help page](imgs/clipboard_help.png)
 
+## Install
+`cargo install --git https://github.com/FynnSu/clipboard`
 
 ## Usage
 ### Add a file to the clipboard using:
@@ -73,5 +75,3 @@ mv /PATH/TO/X/x.txt /PATH/TO/X/x.txt
 ```
 
 
-## Install
-`cargo install --git https://github.com/FynnSu/clipboard`
