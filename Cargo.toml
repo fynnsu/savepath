@@ -8,7 +8,7 @@ description = "A simple cli clipboard to simplify file operations."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "pap"
+name = "savepathcmd"
 path = "src/bin/pap.rs"
 
 [[bin]]

@@ -1,0 +1,5 @@
+SAVEPATH_ALIAS_PLACEHOLDER() {{
+SAP_CMD=$(
+    savepathcmd $@
+) && eval $SAP_CMD
+}}
