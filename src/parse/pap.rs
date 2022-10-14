@@ -37,7 +37,13 @@ fn build_parser() -> Command {
 }
 
 pub fn parse() -> Result<ExtCmd> {
-    let matches = build_parser().get_matches();
+    let matches = match build_parser().try_get_matches() {
+        Ok(m) => m, // TODO: Remove this crap after pull-request to clap
+        Err(e) => {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        }
+    };
 
     let cmd: String = matches
         .get_one::<String>("ext_cmd")
@@ -50,10 +56,9 @@ pub fn parse() -> Result<ExtCmd> {
         .cloned()
         .collect();
 
-    let id: usize = matches
+    let id: usize = *matches
         .get_one::<usize>("id")
-        .expect("id has a default value")
-        .clone();
+        .expect("id has a default value");
 
     let use_pos: bool = matches.get_flag("pos");
 
