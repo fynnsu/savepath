@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::error::{Error, Result};
 use crate::utils;
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct Config {
     state: Vec<Entry>,
 }
@@ -26,7 +26,7 @@ impl Config {
     fn create_vec(cur_dir: PathBuf, files: Vec<PathBuf>) -> Result<Vec<Entry>> {
         let v: Vec<Entry> = files
             .into_iter()
-            .map(|x| Entry::build(&cur_dir, x.to_path_buf()))
+            .map(|x| Entry::build(&cur_dir, x))
             .collect::<Result<Vec<Entry>>>()?;
 
         Ok(v)
@@ -55,7 +55,7 @@ impl Config {
         let mut file = File::create(path)?;
         let data = ron::to_string(self)?;
         let data = data.as_bytes();
-        file.write(data)?;
+        let _ = file.write(data)?;
 
         Ok(())
     }
@@ -72,14 +72,14 @@ impl Config {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Eq)]
 pub struct Entry {
     path: PathBuf,
 }
 
 impl Entry {
-    pub fn build(path: &PathBuf, filename: PathBuf) -> Result<Self> {
-        let mut path = path.clone();
+    pub fn build(path: &Path, filename: PathBuf) -> Result<Self> {
+        let mut path: PathBuf = path.to_path_buf();
         path = path.join(filename);
         path = path.canonicalize()?;
 

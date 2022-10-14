@@ -51,11 +51,7 @@ fn build_parser() -> Command {
 }
 
 fn check_alias_flag(m: &ArgMatches) -> bool {
-    if let Some(ValueSource::CommandLine) = m.value_source("alias") {
-        true
-    } else {
-        false
-    }
+    matches!(m.value_source("alias"), Some(ValueSource::CommandLine))
 }
 
 pub fn parse() -> Result<CMD> {

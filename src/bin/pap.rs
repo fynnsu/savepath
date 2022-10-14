@@ -13,7 +13,8 @@ fn main() -> Result<()> {
     utils::newline();
 
     if choice {
-        Ok(println!("{}", cmd))
+        println!("{}", cmd);
+        Ok(())
     } else {
         std::process::exit(1)
     }

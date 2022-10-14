@@ -59,7 +59,7 @@ pub fn getch() -> Result<u8> {
     terminal::enable_raw_mode()?;
 
     let mut buf = [0; 1];
-    io::stdin().read(&mut buf)?;
+    let _ = io::stdin().read(&mut buf)?;
 
     terminal::disable_raw_mode()?;
 
