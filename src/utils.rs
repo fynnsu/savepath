@@ -1,5 +1,11 @@
+use std::io::{self, stderr, Read, Write};
 use std::{fs, path::PathBuf};
 
+use crossterm::{terminal, QueueableCommand};
+
+use crossterm::cursor::MoveToColumn;
+use crossterm::style::Print;
+use crossterm::terminal::{Clear, ClearType};
 use directories::ProjectDirs;
 
 use crate::error::{Error, Result};
@@ -31,13 +37,33 @@ pub fn get_shell_template(shell_name: &str) -> Result<String> {
     Ok(contents)
 }
 
-pub fn write_command(s: &str, clear: bool) {
+pub fn write_command(s: &str, clear: bool) -> Result<()> {
+    let mut stderr = stderr();
     if clear {
-        const CLEAR_TERM_LINE: &str = "\033[1K\r"; //TODO: move this somewhere better
-        eprint!("{}", CLEAR_TERM_LINE)
+        stderr.queue(Clear(ClearType::CurrentLine))?;
+        stderr.queue(MoveToColumn(0))?;
     }
 
-    eprint!("{} (enter/ctr+c)", s);
+    stderr.queue(Print(format!("{} (enter/ctrl+c)", s)))?;
+
+    stderr.flush()?;
+
+    Ok(())
+}
+
+pub fn newline() {
+    eprintln!();
+}
+
+pub fn getch() -> Result<u8> {
+    terminal::enable_raw_mode()?;
+
+    let mut buf = [0; 1];
+    io::stdin().read(&mut buf)?;
+
+    terminal::disable_raw_mode()?;
+
+    Ok(buf[0])
 }
 
 #[cfg(test)]
@@ -48,10 +74,23 @@ mod tests {
 
     #[test]
     fn test_clear_line_and_write() {
-        write_command("test", false);
+        write_command("test", false).unwrap();
         thread::sleep(Duration::from_secs(2));
-        write_command("new command", true);
+        write_command("new command", true).unwrap();
         thread::sleep(Duration::from_secs(2));
-        write_command("another command", true);
+        write_command("another command", true).unwrap();
+        let mut c = getch().unwrap();
+        while c != 13u8 {
+            eprintln!("Received: {}", c);
+            c = getch().unwrap();
+        }
+    }
+
+    #[test]
+    fn test_cache_dir() {
+        println!("{:?}", get_config_dir().unwrap());
     }
 }
+
+// Enter key 13u8
+// ctrl+c 3u8

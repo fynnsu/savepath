@@ -15,14 +15,14 @@ pub mod utils;
 
 const ALIAS_PLACEHOLDER: &str = "SAVEPATH_ALIAS_PLACEHOLDER";
 
-pub fn create_modified_cmd(mut ext_cmd: ExtCmd) -> Result<String> {
+pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
     let config = Config::load()?;
 
     let id_path = config.get(ext_cmd.id)?.path().to_string_lossy().to_owned();
 
+    let mut args = ext_cmd.args.clone();
     if ext_cmd.use_pos {
-        ext_cmd.args = ext_cmd
-            .args
+        args = args
             .iter()
             .map(|x| {
                 if x == "$" {
@@ -33,21 +33,13 @@ pub fn create_modified_cmd(mut ext_cmd: ExtCmd) -> Result<String> {
             })
             .collect();
     } else {
-        ext_cmd.args.insert(0, From::from(id_path));
+        args.insert(0, From::from(id_path));
     }
 
     let mut cmd = ext_cmd.cmd.clone();
     cmd.push(' ');
-    cmd.push_str(&ext_cmd.args.join(" "));
+    cmd.push_str(&args.join(" "));
     Ok(cmd)
-}
-
-pub fn print_modified_cmd(ext_cmd: ExtCmd) -> Result<()> {
-    let cmd = create_modified_cmd(ext_cmd)?;
-
-    println!("{}", cmd);
-
-    Ok(())
 }
 
 pub fn print_alias(alias_name: &str, shell_name: &str) -> Result<()> {

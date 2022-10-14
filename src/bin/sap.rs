@@ -17,7 +17,7 @@ fn main() -> Result<()> {
             clipboard::add(files)?;
         }
         CMD::Alias { alias } => {
-            println!("{:#?}", alias);
+            clipboard::print_alias(&alias, "ZSH")?; // TODO: Remove hardcoded shell
         }
     }
 

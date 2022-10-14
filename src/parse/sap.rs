@@ -23,8 +23,8 @@ fn build_parser() -> Command {
                 .short('a')
                 .num_args(0..2)
                 .value_name("ALIAS")
-                .default_value("up")
-                .default_missing_value("up"),
+                .default_value("pap")
+                .default_missing_value("pap"),
         )
         .arg(
             Arg::new("color")
