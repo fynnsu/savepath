@@ -1,10 +1,10 @@
 use std::io::{self, stderr, Read, Write};
 use std::path::PathBuf;
 
-use crossterm::{terminal, QueueableCommand, queue};
+use crossterm::{queue, terminal, QueueableCommand};
 
 use crossterm::cursor::MoveToColumn;
-use crossterm::style::{PrintStyledContent, Color, Stylize, Attribute};
+use crossterm::style::{Attribute, Color, PrintStyledContent, Stylize};
 use crossterm::terminal::{Clear, ClearType};
 use directories::ProjectDirs;
 
@@ -35,7 +35,8 @@ pub fn write_command(s: &str, clear: bool) -> Result<()> {
         stderr.queue(MoveToColumn(0))?;
     }
 
-    queue!(stderr, 
+    queue!(
+        stderr,
         PrintStyledContent(format!("{} ", s).attribute(Attribute::Bold)),
         PrintStyledContent("[".with(Color::Grey)),
         PrintStyledContent("enter".with(Color::Green)),

@@ -33,7 +33,7 @@ fn build_parser() -> Command {
                 .long("shell")
                 .short('s')
                 .value_name("SHELL")
-                .help("Specify which shell to generate alias for. Must be one of [zsh|bash|fish].") // |cmd|powershell
+                .help("Specify which shell to generate alias for. Must be one of [zsh|bash|fish]."), // |cmd|powershell
         )
         .arg(
             Arg::new("files")

@@ -26,7 +26,7 @@ mod alias_templates {
     const FISH: &str = "function SAVEPATH_ALIAS_PLACEHOLDER
     savepathcmd $argv | source
 end\n";
-// Need to use "sap -a -s fish | source" instead of eval $(sap -a -s fish) to setup
+    // Need to use "sap -a -s fish | source" instead of eval $(sap -a -s fish) to setup
 
     const CMD: &str = "@echo off \n\
         savepathcmd !*& | source /C";
@@ -66,7 +66,7 @@ pub fn print_alias(shell: Option<Shell>, alias_name: &str) {
             // if cfg!(windows) {
             //     Shell::Powershell
             // // } else {
-                Shell::Bash
+            Shell::Bash
             // }
         }
     };
