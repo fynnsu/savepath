@@ -1,5 +1,6 @@
 use clipboard::error::Result;
 use clipboard::parse::pap::{self};
+use clipboard::state::Config;
 use clipboard::utils;
 use crossterm::event::{self, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
@@ -13,6 +14,8 @@ fn main() -> Result<()> {
         // Positional usage (can't move left and right)
     }
 
+    let nfiles = Config::load()?.len();
+
     let mut cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
 
     utils::write_command(&cmd_str, false)?;
@@ -24,9 +27,9 @@ fn main() -> Result<()> {
     loop {
         match choice {
             Selection::Accept => {
+                disable_raw_mode()?;
                 utils::newline();
                 println!("{}", cmd_str);
-                disable_raw_mode()?;
                 std::process::exit(0);
             }
             Selection::Cancel => {
@@ -40,17 +43,17 @@ fn main() -> Result<()> {
                 choice = get_selection();
             }
             Selection::Up => {
-                if ext_cmd.id == 0 {
-                    ext_cmd.id = ext_cmd.nargs + 1;
-                } else {
-                    ext_cmd.id -= 1;
-                }
+                ext_cmd.id = (ext_cmd.id + 1) % nfiles;
                 cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Down => {
-                ext_cmd.id = (ext_cmd.id + 1) % (ext_cmd.nargs + 1);
+                if ext_cmd.id == 0 {
+                    ext_cmd.id = nfiles - 1;
+                } else {
+                    ext_cmd.id -= 1;
+                }
                 cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();

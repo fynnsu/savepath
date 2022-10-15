@@ -32,6 +32,10 @@ impl Config {
         Ok(v)
     }
 
+    pub fn len(&self) -> usize {
+        self.state.len() 
+    }
+
     pub fn iter(&self) -> std::slice::Iter<Entry> {
         self.state.iter()
     }
