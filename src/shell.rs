@@ -11,11 +11,11 @@ mod alias_templates {
         }
     }
 
-    const ZSH: &str = "SAVEPATH_ALIAS_PLACEHOLDER() {{\
-        SAP_CMD=$(\
-            savepathcmd $@\
-        ) && eval $SAP_CMD\
-    }}";
+    const ZSH: &str = "SAVEPATH_ALIAS_PLACEHOLDER() {{
+    SAP_CMD=$(
+        savepathcmd $@
+    ) && eval $SAP_CMD
+}}";
 
     const BASH: &str = "function SAVEPATH_ALIAS_PLACEHOLDER () {
     SAP_CMD=$(
