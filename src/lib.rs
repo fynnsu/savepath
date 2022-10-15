@@ -10,10 +10,11 @@ use crate::state::Config;
 
 pub mod error;
 pub mod parse;
+mod shell;
 pub mod state;
 pub mod utils;
 
-const ALIAS_PLACEHOLDER: &str = "SAVEPATH_ALIAS_PLACEHOLDER";
+pub use shell::{print_alias, shell_from_str, Shell};
 
 pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
     let config = Config::load()?;
@@ -40,19 +41,6 @@ pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
     cmd.push(' ');
     cmd.push_str(&args.join(" "));
     Ok(cmd)
-}
-
-pub fn print_alias(alias_name: &str, shell_name: &str) -> Result<()> {
-    // Read script template for shell_name
-    let script = utils::get_shell_template(shell_name)?;
-
-    // replace alias_placeholdr with alias_name
-    let script = script.replace(ALIAS_PLACEHOLDER, alias_name);
-
-    // print resulting string
-    println!("{}", script);
-
-    Ok(())
 }
 
 pub fn list() -> Result<()> {

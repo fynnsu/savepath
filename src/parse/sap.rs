@@ -10,7 +10,7 @@ pub enum CMD {
     Add { files: Vec<PathBuf> },
     List,
     Clear,
-    Alias { alias: String },
+    Alias { alias: String, shell: String },
 }
 
 fn build_parser() -> Command {
@@ -24,7 +24,15 @@ fn build_parser() -> Command {
                 .num_args(0..2)
                 .value_name("ALIAS")
                 .default_value("pap")
-                .default_missing_value("pap"),
+                .default_missing_value("pap")
+                .requires("shell")
+        )
+        .arg(
+            Arg::new("shell")
+                .long("shell")
+                .short('s')
+                .value_name("SHELL")
+                .help("Specify which shell to generate alias for. \nMust be one of [zsh|bash|fish]. \nRequired when --alias is used.") // |cmd|powershell
         )
         .arg(
             Arg::new("color")
@@ -66,7 +74,11 @@ pub fn parse() -> Result<CMD> {
             .get_one::<String>("alias")
             .ok_or(Error::ParseError)?
             .clone();
-        Ok(CMD::Alias { alias })
+        let shell: String = matches
+            .get_one::<String>("shell")
+            .ok_or(Error::ParseError)?
+            .clone();
+        Ok(CMD::Alias { alias, shell })
     } else {
         let files = matches
             .get_many("files")

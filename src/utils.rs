@@ -1,5 +1,5 @@
 use std::io::{self, stderr, Read, Write};
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
 use crossterm::{terminal, QueueableCommand};
 
@@ -13,7 +13,6 @@ use crate::error::{Error, Result};
 const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "fynnsu";
 const APPLICATION: &str = "clipboard";
-const SHELL_FOLDER: &str = "shell";
 const CONFIG_FILE: &str = "config.ron";
 
 fn get_config_dir() -> Result<PathBuf> {
@@ -27,14 +26,6 @@ fn get_config_dir() -> Result<PathBuf> {
 
 pub fn get_config_path() -> Result<PathBuf> {
     Ok(get_config_dir()?.join(PathBuf::from(CONFIG_FILE)))
-}
-
-pub fn get_shell_template(shell_name: &str) -> Result<String> {
-    let path = get_config_dir()?
-        .join(SHELL_FOLDER)
-        .join(format!("{}.txt", shell_name));
-    let contents = fs::read_to_string(path)?;
-    Ok(contents)
 }
 
 pub fn write_command(s: &str, clear: bool) -> Result<()> {
