@@ -26,23 +26,14 @@ fn build_parser() -> Command {
                 .default_value("pap")
                 .default_missing_value("pap")
                 .requires("shell")
+                .help("Generate alias with optional name. Requires '--shell'"),
         )
         .arg(
             Arg::new("shell")
                 .long("shell")
                 .short('s')
                 .value_name("SHELL")
-                .help("Specify which shell to generate alias for. \nMust be one of [zsh|bash|fish]. \nRequired when --alias is used.") // |cmd|powershell
-        )
-        .arg(
-            Arg::new("color")
-                .long("color")
-                .num_args(0..2)
-                .value_name("WHEN")
-                .default_value("auto")
-                .overrides_with("color")
-                .require_equals(true)
-                .default_missing_value("always"),
+                .help("Specify which shell to generate alias for. Must be one of [zsh|bash|fish].") // |cmd|powershell
         )
         .arg(
             Arg::new("files")
