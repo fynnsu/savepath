@@ -5,15 +5,16 @@ use crate::error::Result;
 #[derive(Debug)]
 pub struct ExtCmd {
     pub id: usize,
-    pub cmd: String,
-    pub args: Vec<String>,
+    pub cmd_args: Vec<String>,
     pub use_pos: bool,
+    pub cur_pos: usize,
+    pub nargs: usize,
 }
 
 fn build_parser() -> Command {
     command!()
         .arg(
-            arg!(-i --id <ID> "The id of the file to modify")
+            arg!(-i --id <ID> "The id of the path to use")
                 .value_parser(value_parser!(usize))
                 .default_value("0"),
         )
@@ -22,17 +23,12 @@ fn build_parser() -> Command {
                 .action(ArgAction::SetTrue),
         )
         .arg(
-            Arg::new("ext_cmd")
-                .action(ArgAction::Set)
-                .required(true)
-                .help("External command to run."),
-        )
-        .arg(
-            Arg::new("ext_args")
+            Arg::new("cmd_args")
                 .action(ArgAction::Set)
                 .num_args(1..)
                 .trailing_var_arg(true)
-                .help("Arguments for external command."),
+                .required(true)
+                .help("External command with args to run"),
         )
 }
 
@@ -45,13 +41,8 @@ pub fn parse() -> Result<ExtCmd> {
         }
     };
 
-    let cmd: String = matches
-        .get_one::<String>("ext_cmd")
-        .expect("ext_cmd is a required argument")
-        .clone();
-
-    let args: Vec<String> = matches
-        .get_many("ext_args")
+    let cmd_args: Vec<String> = matches
+        .get_many("cmd_args")
         .unwrap_or_default()
         .cloned()
         .collect();
@@ -62,10 +53,13 @@ pub fn parse() -> Result<ExtCmd> {
 
     let use_pos: bool = matches.get_flag("pos");
 
+    let nargs = cmd_args.len();
+
     Ok(ExtCmd {
         id,
-        cmd,
-        args,
+        cmd_args,
         use_pos,
+        cur_pos: 1,
+        nargs,
     })
 }

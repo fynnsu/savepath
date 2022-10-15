@@ -21,9 +21,9 @@ pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
 
     let id_path = config.get(ext_cmd.id)?.path().to_string_lossy().to_owned();
 
-    let mut args = ext_cmd.args.clone();
+    let mut cmd_args = ext_cmd.cmd_args.clone();
     if ext_cmd.use_pos {
-        args = args
+        cmd_args = cmd_args
             .iter()
             .map(|x| {
                 if x == "$" {
@@ -34,13 +34,10 @@ pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
             })
             .collect();
     } else {
-        args.insert(0, From::from(id_path));
+        cmd_args.insert(ext_cmd.cur_pos, From::from(id_path));
     }
 
-    let mut cmd = ext_cmd.cmd.clone();
-    cmd.push(' ');
-    cmd.push_str(&args.join(" "));
-    Ok(cmd)
+    Ok(cmd_args.join(" "))
 }
 
 pub fn list() -> Result<()> {
