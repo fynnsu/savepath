@@ -37,9 +37,19 @@ fn main() -> Result<()> {
                 std::process::exit(1);
             }
             Selection::Left => {
+                if ext_cmd.cur_pos == 0 {
+                    ext_cmd.cur_pos = ext_cmd.nargs;
+                } else {
+                    ext_cmd.cur_pos -= 1;
+                }
+                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Right => {
+                ext_cmd.cur_pos = (ext_cmd.cur_pos + 1) % (ext_cmd.nargs+1);
+                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Up => {

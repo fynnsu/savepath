@@ -41,9 +41,13 @@ pub fn write_command(s: &str, clear: bool) -> Result<()> {
         PrintStyledContent("[".with(Color::Grey)),
         PrintStyledContent("enter".with(Color::Green)),
         PrintStyledContent("/".with(Color::Grey)),
+        PrintStyledContent("←".with(Color::Blue)),
+        PrintStyledContent("/".with(Color::Grey)),
         PrintStyledContent("↑".with(Color::Blue)),
         PrintStyledContent("/".with(Color::Grey)),
         PrintStyledContent("↓".with(Color::Blue)),
+        PrintStyledContent("/".with(Color::Grey)),
+        PrintStyledContent("→".with(Color::Blue)),
         PrintStyledContent("/".with(Color::Grey)),
         PrintStyledContent("ctrl+c".with(Color::Red)),
         PrintStyledContent("]".with(Color::Grey))
