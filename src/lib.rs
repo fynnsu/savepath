@@ -1,4 +1,4 @@
-use std::env;
+use std::{env};
 use std::path::PathBuf;
 #[macro_use]
 extern crate prettytable;
@@ -21,20 +21,22 @@ pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
 
     let id_path = config.get(ext_cmd.id)?.path().to_string_lossy().to_owned();
 
+    let id_path: String = format!("\"{}\"", id_path.to_string());
+
     let mut cmd_args = ext_cmd.cmd_args.clone();
     if ext_cmd.use_pos {
         cmd_args = cmd_args
             .iter()
             .map(|x| {
                 if x == "$" {
-                    From::from(id_path.clone())
+                    id_path.clone()
                 } else {
                     From::from(x)
                 }
             })
             .collect();
     } else {
-        cmd_args.insert(ext_cmd.cur_pos, From::from(id_path));
+        cmd_args.insert(ext_cmd.cur_pos, id_path);
     }
 
     Ok(cmd_args.join(" "))
@@ -42,8 +44,6 @@ pub fn create_modified_cmd(ext_cmd: &ExtCmd) -> Result<String> {
 
 pub fn list() -> Result<()> {
     let config = Config::load()?;
-
-    println!("Clipboard:\n");
 
     let mut table = Table::new();
 
