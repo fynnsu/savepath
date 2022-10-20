@@ -1,8 +1,11 @@
+//! A command line parser for the SavePath (sap) application
+
 use clap::{
     arg, command, parser::ValueSource, value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
 };
 use std::path::PathBuf;
 
+/// A struct to hold the parsed action
 #[derive(Debug)]
 pub enum CMD {
     Add { files: Vec<PathBuf> },
@@ -11,6 +14,7 @@ pub enum CMD {
     Alias { alias: String, shell: String },
 }
 
+/// Builds parser for sap
 fn build_parser() -> Command {
     command!()
         .arg(arg!(-l --list "List saved paths").action(ArgAction::SetTrue))
@@ -47,10 +51,12 @@ fn build_parser() -> Command {
         )
 }
 
+/// Check if the alias argument was provided
 fn check_alias_flag(m: &ArgMatches) -> bool {
     matches!(m.value_source("alias"), Some(ValueSource::CommandLine))
 }
 
+/// Parses the command line arguments for sap
 pub fn parse() -> CMD {
     let matches = build_parser().get_matches();
 

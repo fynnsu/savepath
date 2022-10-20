@@ -1,5 +1,7 @@
-use clap::{arg, command, value_parser, Arg, ArgAction, Command};
+//! A command line parser for the PastePath (pap) application
 
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
+/// A struct to hold the parsed external command
 #[derive(Debug)]
 pub struct ExtCmd {
     pub id: usize,
@@ -8,6 +10,7 @@ pub struct ExtCmd {
     pub nargs: usize,
 }
 
+/// Builds parser for pap
 fn build_parser() -> Command {
     command!()
         .arg(
@@ -25,6 +28,7 @@ fn build_parser() -> Command {
         )
 }
 
+/// Parses the command line arguments for pap
 pub fn parse() -> ExtCmd {
     let matches = match build_parser().try_get_matches() {
         Ok(m) => m, // TODO: Remove this after pull-request to clap

@@ -1,3 +1,4 @@
+//! Module for managing SavePath/PastePath state
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -7,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 use crate::utils;
 
+/// Config struct that contains state
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 pub struct Config {
     state: Vec<Entry>,
@@ -29,9 +31,6 @@ impl Config {
     /// # Arguments
     /// cur_dir: PathBuf - the current directory
     /// files: Vec<PathBuf> - the files to use
-    ///
-    /// # Returns
-    /// anyhow::Result<Vec<Entry>> - the created Vec<Entry> object
     fn create_vec(cur_dir: PathBuf, files: Vec<PathBuf>) -> anyhow::Result<Vec<Entry>> {
         files
             .into_iter()
@@ -60,9 +59,6 @@ impl Config {
     /// self: &mut Config - the current config state
     /// cur_dir: PathBuf - the current working directory
     /// files: Vec<PathBuf> - the files to add to the config state
-    ///
-    /// # Returns
-    /// Result<()> - the result of the operation
     pub fn extend(&mut self, cur_dir: PathBuf, files: Vec<PathBuf>) -> anyhow::Result<()> {
         let mut v = Config::create_vec(cur_dir, files)?;
         v.append(&mut self.state); // new entries first
@@ -70,15 +66,20 @@ impl Config {
         self.save()
     }
 
+    /// Creates a new empty Config object
     pub fn empty() -> Self {
-        Config { state: vec![] }
+        let config = Config { state: Vec::new() };
+        config.save().expect("Could not save config");
+        config
     }
 
+    /// Clears the current config state and saves to disk
     pub fn clear(&mut self) -> anyhow::Result<()> {
         self.state.clear();
         self.save()
     }
 
+    /// Saves the current config state to disk
     fn save(&self) -> anyhow::Result<()> {
         let path = utils::get_config_path()?;
         if let Some(p) = path.parent() {
@@ -92,6 +93,7 @@ impl Config {
         Ok(())
     }
 
+    /// Loads the config state from disk
     pub fn load() -> anyhow::Result<Self> {
         let path = utils::get_config_path()?;
         if !path.exists() {

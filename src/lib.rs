@@ -1,3 +1,4 @@
+//! Library for SavePath (sap)/PastePath (pap) applications
 use std::env;
 use std::path::PathBuf;
 #[macro_use]
@@ -22,7 +23,7 @@ pub use shell::{print_alias, shell_from_str, Shell};
 /// ext_cmd: &ExtCmd - the external command object
 ///
 /// # Returns
-/// Result<String> - the modified command string
+/// anyhow::Result<String> - the modified command string
 pub fn create_modified_cmd(config: &Config, ext_cmd: &ExtCmd) -> anyhow::Result<String> {
     let path_entry = match config.get(ext_cmd.id) {
         Some(p) => p,
@@ -61,14 +62,12 @@ pub fn list(config: &Config) {
 /// # Arguments
 /// config: &mut Config - the current config state
 /// files: Vec<PathBuf> - the files to add to the config state
-///
-/// # Errors
-/// IoError - if the current working directory cannot be determined or accessed
 pub fn add(config: &mut Config, files: Vec<PathBuf>) -> anyhow::Result<()> {
     let cur_dir = env::current_dir().context("Could not determine current working directory")?;
     config.extend(cur_dir, files)
 }
 
+/// Removes all paths from the current config state
 pub fn clear(config: &mut Config) -> anyhow::Result<()> {
     config.clear()
 }

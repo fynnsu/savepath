@@ -1,3 +1,6 @@
+//! Module for sap/pap shell interactions
+
+/// Alias command templates for different shells
 mod alias_templates {
     use super::Shell;
 
@@ -36,6 +39,7 @@ end\n";
     }";
 }
 
+/// Supported shells
 pub enum Shell {
     Zsh,
     Bash,
@@ -44,6 +48,7 @@ pub enum Shell {
     Powershell,
 }
 
+/// Convert a string to a Shell enum
 pub fn shell_from_str(s: &str) -> Option<Shell> {
     match &s.to_lowercase()[..] {
         "zsh" => Some(Shell::Zsh),
@@ -55,6 +60,7 @@ pub fn shell_from_str(s: &str) -> Option<Shell> {
     }
 }
 
+/// Print the alias for the given shell
 pub fn print_alias(shell: Option<Shell>, alias_name: &str) {
     let shell: Shell = match shell {
         Some(shell) => shell,
