@@ -1,6 +1,6 @@
-use clipboard::parse::pap::{self};
-use clipboard::state::Config;
-use clipboard::utils;
+use savepath::parse::pap::{self};
+use savepath::state::Config;
+use savepath::utils;
 use crossterm::event::{self, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use event::Event::Key;
@@ -11,7 +11,7 @@ fn main() -> anyhow::Result<()> {
 
     let nfiles = config.len();
 
-    let mut cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
+    let mut cmd_str = savepath::create_modified_cmd(&config, &ext_cmd)?;
 
     utils::write_command(&cmd_str, false)?;
 
@@ -37,19 +37,19 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     ext_cmd.cur_pos -= 1;
                 }
-                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
+                cmd_str = savepath::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Right => {
                 ext_cmd.cur_pos = (ext_cmd.cur_pos + 1) % (ext_cmd.nargs + 1);
-                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
+                cmd_str = savepath::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Up => {
                 ext_cmd.id = (ext_cmd.id + 1) % nfiles;
-                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
+                cmd_str = savepath::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
@@ -59,7 +59,7 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     ext_cmd.id -= 1;
                 }
-                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
+                cmd_str = savepath::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }

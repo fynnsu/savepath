@@ -7,7 +7,7 @@ A command-line tool for saving and pasting file/dir paths into cmds.
 ## Installation
 Run:
 ```
-cargo install --git https://github.com/FynnSu/clipboard
+cargo install --git https://github.com/FynnSu/savepath
 ```
 to install the executibles. To Use the pap command you need to add the following to your .bashrc/.zshrc:
 ```
@@ -46,7 +46,7 @@ cp "/PATH/TO/FILE/file.txt" . [enter/←/↑/↓/→/ctrl+c]
 Just press enter to confirm. The left and right arrow keys can be used to move where the path is inserted. The up and down arrow keys can be used to cycle through the saved paths. Pressing ctrl+c will cancel the command.
 
 ### Save Path Help Output
-![Image of Save Path help page](imgs/clipboard_help.png)
+![Image of Save Path help page](imgs/savepath_help.png)
 
 
 ## Acknowledgements

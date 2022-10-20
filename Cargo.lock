@@ -93,19 +93,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "clipboard"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "crossterm",
- "directories",
- "prettytable-rs",
- "ron",
- "serde",
-]
-
-[[package]]
 name = "crossterm"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -419,6 +406,19 @@ name = "ryu"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
+
+[[package]]
+name = "savepath"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "crossterm",
+ "directories",
+ "prettytable-rs",
+ "ron",
+ "serde",
+]
 
 [[package]]
 name = "scopeguard"

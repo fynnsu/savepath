@@ -10,7 +10,7 @@ use directories::ProjectDirs;
 
 const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "fynnsu";
-const APPLICATION: &str = "clipboard";
+const APPLICATION: &str = "savepath";
 const CONFIG_FILE: &str = "config.ron";
 
 /// Get the path to the application data directory

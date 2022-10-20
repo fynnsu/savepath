@@ -1,5 +1,5 @@
-use clipboard::parse::sap::{self, CMD};
-use clipboard::state::Config;
+use savepath::parse::sap::{self, CMD};
+use savepath::state::Config;
 
 fn main() -> anyhow::Result<()> {
     let cmd = sap::parse();
@@ -16,17 +16,17 @@ fn main() -> anyhow::Result<()> {
 
     match cmd {
         CMD::List => {
-            clipboard::list(&config);
+            savepath::list(&config);
         }
         CMD::Clear => {
-            clipboard::clear(&mut config)?;
+            savepath::clear(&mut config)?;
         }
         CMD::Add { files } => {
-            clipboard::add(&mut config, files)?;
+            savepath::add(&mut config, files)?;
         }
         CMD::Alias { alias, shell } => {
-            let shell = clipboard::shell_from_str(&shell);
-            clipboard::print_alias(shell, &alias);
+            let shell = savepath::shell_from_str(&shell);
+            savepath::print_alias(shell, &alias);
         }
     }
 
