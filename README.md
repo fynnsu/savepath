@@ -50,5 +50,5 @@ Just press enter to confirm. The left and right arrow keys can be used to move w
 
 
 ## Acknowledgements
-
 The prompt formatting and mechanism is inspired by [thefuck](https://github.com/nvbn), a tool for correcting previous commands.
+
