@@ -8,7 +8,6 @@ use prettytable::{format, Table};
 use crate::parse::pap::ExtCmd;
 use crate::state::Config;
 
-pub mod error;
 pub mod parse;
 mod shell;
 pub mod state;
