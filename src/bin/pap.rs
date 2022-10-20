@@ -1,22 +1,17 @@
-use clipboard::error::Result;
 use clipboard::parse::pap::{self};
 use clipboard::state::Config;
 use clipboard::utils;
 use crossterm::event::{self, KeyCode, KeyEvent, KeyModifiers};
-use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use event::Event::Key;
 
-fn main() -> Result<()> {
-    //TODO: manage errors better in this function
-    let mut ext_cmd = pap::parse()?;
+fn main() -> anyhow::Result<()> {
+    let mut ext_cmd = pap::parse();
+    let config = Config::load()?;
 
-    if ext_cmd.use_pos {
-        // Positional usage (can't move left and right)
-    }
+    let nfiles = config.len();
 
-    let nfiles = Config::load()?.len();
-
-    let mut cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+    let mut cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
 
     utils::write_command(&cmd_str, false)?;
 
@@ -42,19 +37,19 @@ fn main() -> Result<()> {
                 } else {
                     ext_cmd.cur_pos -= 1;
                 }
-                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Right => {
-                ext_cmd.cur_pos = (ext_cmd.cur_pos + 1) % (ext_cmd.nargs+1);
-                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                ext_cmd.cur_pos = (ext_cmd.cur_pos + 1) % (ext_cmd.nargs + 1);
+                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
             Selection::Up => {
                 ext_cmd.id = (ext_cmd.id + 1) % nfiles;
-                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
@@ -64,7 +59,7 @@ fn main() -> Result<()> {
                 } else {
                     ext_cmd.id -= 1;
                 }
-                cmd_str = clipboard::create_modified_cmd(&ext_cmd)?;
+                cmd_str = clipboard::create_modified_cmd(&config, &ext_cmd)?;
                 utils::write_command(&cmd_str, true)?;
                 choice = get_selection();
             }
@@ -74,16 +69,34 @@ fn main() -> Result<()> {
 
 fn get_selection() -> Selection {
     loop {
-        if let Ok(event )= event::read() {
+        if let Ok(event) = event::read() {
             // eprintln!("Event: {:?}\r", event);
             match event {
-                Key(KeyEvent{code: KeyCode::Enter, ..}) => return Selection::Accept,
-                Key(KeyEvent{code: KeyCode::Char('c'), modifiers: KeyModifiers::CONTROL, ..}) => return Selection::Cancel,
-                Key(KeyEvent{code: KeyCode::Left, ..}) => return Selection::Left,
-                Key(KeyEvent{code: KeyCode::Right, ..}) => return Selection::Right,
-                Key(KeyEvent{code: KeyCode::Up, ..}) => return Selection::Up,
-                Key(KeyEvent{code: KeyCode::Down, ..}) => return Selection::Down,
-                _ => continue
+                Key(KeyEvent {
+                    code: KeyCode::Enter,
+                    ..
+                }) => return Selection::Accept,
+                Key(KeyEvent {
+                    code: KeyCode::Char('c'),
+                    modifiers: KeyModifiers::CONTROL,
+                    ..
+                }) => return Selection::Cancel,
+                Key(KeyEvent {
+                    code: KeyCode::Left,
+                    ..
+                }) => return Selection::Left,
+                Key(KeyEvent {
+                    code: KeyCode::Right,
+                    ..
+                }) => return Selection::Right,
+                Key(KeyEvent {
+                    code: KeyCode::Up, ..
+                }) => return Selection::Up,
+                Key(KeyEvent {
+                    code: KeyCode::Down,
+                    ..
+                }) => return Selection::Down,
+                _ => continue,
             }
         }
     }

@@ -3,8 +3,6 @@ use clap::{
 };
 use std::path::PathBuf;
 
-use crate::error::{Error, Result};
-
 #[derive(Debug)]
 pub enum CMD {
     Add { files: Vec<PathBuf> },
@@ -53,23 +51,23 @@ fn check_alias_flag(m: &ArgMatches) -> bool {
     matches!(m.value_source("alias"), Some(ValueSource::CommandLine))
 }
 
-pub fn parse() -> Result<CMD> {
+pub fn parse() -> CMD {
     let matches = build_parser().get_matches();
 
     if matches.get_flag("list") {
-        Ok(CMD::List)
+        CMD::List
     } else if matches.get_flag("clear") {
-        Ok(CMD::Clear)
+        CMD::Clear
     } else if check_alias_flag(&matches) {
         let alias: String = matches
             .get_one::<String>("alias")
-            .ok_or(Error::ParseError)?
+            .expect("alias has a default value")
             .clone();
         let shell: String = matches
             .get_one::<String>("shell")
-            .ok_or(Error::ParseError)?
+            .expect("Shell is required if alias is set")
             .clone();
-        Ok(CMD::Alias { alias, shell })
+        CMD::Alias { alias, shell }
     } else {
         let files = matches
             .get_many("files")
@@ -77,6 +75,6 @@ pub fn parse() -> Result<CMD> {
             .cloned()
             .collect();
 
-        Ok(CMD::Add { files })
+        CMD::Add { files }
     }
 }
