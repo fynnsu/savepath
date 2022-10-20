@@ -1,29 +1,33 @@
-# Clipboard
+# SAvePath (sap) & PAstePath (pap)
 
-A Command Line Tool to simplify file operations. 
+A command-line tool for saving and pasting file/dir paths into cmds.
 
-Note: Under development.
+![Example of Save Path in Use](imgs/example.png)
 
-![Image of Clipboard help page](imgs/clipboard_help.png)
-
-## Install
-`cargo install --git https://github.com/FynnSu/clipboard`
+## Installation
+Run:
+```
+cargo install --git https://github.com/FynnSu/savepath
+```
+to install the executibles. To Use the pap command you need to add the following to your .bashrc/.zshrc:
+```
+eval "$(sap -a -s SHELL)"
+```
+where SHELL is the shell you are using (bash/zsh/fish).
 
 ## Usage
-### Add a file to the clipboard using:
+### Add a path to store
 
 ```
-cb add file.txt
+sap file.txt
 ```
 
-### View items on clipboard using:
+### View saved paths:
 ```
-cb list
+sap -l
 ```
 Output:
 ```
-Clipboard:
-
  Id | Path
 ----+-------------------------------
  0  | /PATH/TO/FILE/file.txt
@@ -31,47 +35,20 @@ Clipboard:
 ```
 
 ### Use most recently added path in external command
-Runs any existing commands (like: `cp, cat, ls`) and substitute filepath as first argument.
+Run any command (e.g. `ls`) and insert a saved path into the cmd
 ```
-cb cp file2.txt
+pap cp .
 ```
-Runs:
+Response:
 ```
-cp /PATH/TO/FILE/file.txt file2.txt
+cp "/PATH/TO/FILE/file.txt" . [enter/←/↑/↓/→/ctrl+c]
 ```
+Just press enter to confirm. The left and right arrow keys can be used to move where the path is inserted. The up and down arrow keys can be used to cycle through the saved paths. Pressing ctrl+c will cancel the command.
 
-### Use `-i` (`--id`) to insert a different file from clipboard
-```
-cb -i 1 cp file2.txt
-```
-Runs:
-```
-cp /PATH/TO/OLDER/FILE/older.txt file2.txt
-```
+### Save Path Help Output
+![Image of Save Path help page](imgs/savepath_help.png)
 
 
-### Use `-p` (`--pos`) flag and `$` to insert into a different location
-```
-cb add my_dir
-cb -p rm -R -f $
-```
-Runs:
-```
-rm -R -f /PATH/TO/MY/DIR/my_dir
-```
-
-Note: currently `$` will only be replaced with the path if it is passed as an argument (and not a substring of an argument).
-i.e.
-`cb -p ls $` works but `cb ls $/sub_dir` doesn't. 
-
-### Or substitute multiple times
-```
-cb add x.txt
-cb -p mv $ $
-```
-Runs:
-```
-mv /PATH/TO/X/x.txt /PATH/TO/X/x.txt
-```
-
+## Acknowledgements
+The prompt formatting and mechanism is inspired by [thefuck](https://github.com/nvbn), a tool for correcting previous commands.
 

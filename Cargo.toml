@@ -1,18 +1,24 @@
 [package]
-name = "clipboard"
+name = "savepath"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "A simple cli clipboard to simplify file operations."
+description = "A command-line tool for saving and pasting file/dir paths"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "cb"
-path = "src/main.rs"
+name = "savepathcmd"
+path = "src/bin/pap.rs"
+
+[[bin]]
+name = "sap"
+path = "src/bin/sap.rs"
 
 [dependencies]
+anyhow = "1.0.65"
 clap = { version = "4.0.12", features = ["cargo", "derive"] }
+crossterm = "0.25.0"
 directories = "4.0.1"
 prettytable-rs = "0.9.0"
 ron = "0.8.0"

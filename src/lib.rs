@@ -1,98 +1,73 @@
+//! Library for SavePath (sap)/PastePath (pap) applications
 use std::env;
-use std::ffi::OsString;
 use std::path::PathBuf;
-use std::process::{Command};
 #[macro_use]
 extern crate prettytable;
+use anyhow::Context;
 use prettytable::{format, Table};
 
-use crate::error::{Error, Result};
+use crate::parse::pap::ExtCmd;
 use crate::state::Config;
 
-pub mod error;
-pub mod parser;
+pub mod parse;
+mod shell;
 pub mod state;
+pub mod utils;
 
-pub fn run_ext(
-    id: parser::Id,
-    use_pos: bool,
-    cmd_name: OsString,
-    mut args: Vec<OsString>,
-) -> Result<()> {
-    let config = Config::load()?;
+pub use shell::{print_alias, shell_from_str, Shell};
 
-    let id_path = get_path(&config, &id)?;
+/// Creates a command string using the ext_cmd object and current config state
+///
+/// # Arguments
+/// config: &Config - the current config state
+/// ext_cmd: &ExtCmd - the external command object
+///
+/// # Returns
+/// anyhow::Result<String> - the modified command string
+pub fn create_modified_cmd(config: &Config, ext_cmd: &ExtCmd) -> anyhow::Result<String> {
+    let path_entry = match config.get(ext_cmd.id) {
+        Some(p) => p,
+        None => return Err(anyhow::anyhow!("Invalid entry index {}", ext_cmd.id)),
+    };
+    let id_path = path_entry.path().to_string_lossy();
 
-    if use_pos {
-        args = args
-            .iter()
-            .map(|x| {
-                if x == "$" {
-                    From::from(id_path)
-                } else {
-                    From::from(x)
-                }
-            })
-            .collect();
-    } else {
-        args.insert(0, From::from(id_path));
-    }
-    let mut cmd = Command::new(cmd_name);
-    let cmd = cmd.args(args);
+    let id_path: String = format!("\"{}\"", id_path);
 
-    println!("Running Command:\n{:?}\n", cmd);
+    let mut cmd_args = ext_cmd.cmd_args.clone();
+    cmd_args.insert(ext_cmd.cur_pos, id_path);
 
-    let output = cmd.output()?;
-
-    if !output.stdout.is_empty() {
-        println!("{}", String::from_utf8_lossy(&output.stdout));
-    }
-    if !output.stderr.is_empty() {
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-    }
-
-    if !output.status.success() {
-        Err(Error::ExtCmdFailed(output.status))
-    } else {
-        Ok(())
-    }
+    Ok(cmd_args.join(" "))
 }
 
-pub fn list() -> Result<()> {
-    let config = Config::load()?;
-
-    println!("Clipboard:\n");
-
+/// Creates a table of the current config state and prints it to stdout
+///
+/// # Arguments
+/// config: &Config - the current config state
+pub fn list(config: &Config) {
     let mut table = Table::new();
 
     table.set_titles(row!["Id", "Path"]);
 
-    for (i, v) in config.state.iter().enumerate() {
+    for (i, v) in config.iter().enumerate() {
         table.add_row(row![i, v.path().to_string_lossy()]);
     }
 
     table.set_format(*format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
 
     table.printstd();
-
-    Ok(())
 }
 
-fn get_path<'a>(config: &'a Config, id: &parser::Id) -> Result<&'a PathBuf> {
-    let x = config.get(id.0)?;
-    Ok(x.path())
+/// Adds the given files to the current config state
+///
+/// # Arguments
+/// config: &mut Config - the current config state
+/// files: Vec<PathBuf> - the files to add to the config state
+pub fn add(config: &mut Config, files: Vec<PathBuf>) -> anyhow::Result<()> {
+    let cur_dir = env::current_dir().context("Could not determine current working directory")?;
+    config.extend(cur_dir, files)
 }
 
-pub fn add(files: Vec<PathBuf>) -> Result<()> {
-    let cur_dir = env::current_dir()?;
-
-    let mut config = Config::load()?;
-    config.extend(cur_dir, files)?;
-    config.save()?;
-    Ok(())
-}
-
-pub fn clear() -> Result<()> {
-    Config::empty().save()?;
-    Ok(())
+/// Removes all paths from the current config state
+pub fn clear(config: &mut Config) -> anyhow::Result<()> {
+    config.clear()
 }
