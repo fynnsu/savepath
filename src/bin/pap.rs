@@ -1,4 +1,4 @@
-use savepath::parse::pap::{self};
+use savepath::parse::pap;
 use savepath::state::Config;
 use savepath::utils;
 use crossterm::event::{self, KeyCode, KeyEvent, KeyModifiers};
